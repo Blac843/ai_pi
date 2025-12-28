@@ -3,178 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI चैटबॉट फिक्स्ड</title>
+    <title>AI चैटबॉट - Puter.js</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         .chat-container {
-            max-width: 600px;
-            margin: auto;
+            width: 100%;
+            max-width: 800px;
+            height: 80vh;
             background: white;
-            border-radius: 10px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            color: white;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
         }
+
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
         .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
         }
-        .user {
-            background: #e3f2fd;
-            text-align: right;
+
+        .user-message {
+            justify-content: flex-end;
         }
-        .ai {
-            background: #f5f5f5;
-            text-align: left;
+
+        .bot-message {
+            justify-content: flex-start;
         }
-        input {
-            width: 70%;
-            padding: 10px;
-            margin-right: 10px;
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
         }
-        button {
-            padding: 10px 20px;
-            background: #4CAF50;
+
+        .user-bubble {
+            background: #4f46e5;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-bubble {
+            background: white;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #messageInput:focus {
+            border-color: #4f46e5;
+        }
+
+        #sendButton {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #sendButton:hover {
+            transform: translateY(-2px);
+        }
+
+        #sendButton:active {
+            transform: translateY(0);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 18px;
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            width: fit-content;
+            margin-bottom: 15px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        .model-selector {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .model-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .model-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 5px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <h2>AI चैटबॉट (फिक्स्ड वर्जन)</h2>
-        <div id="chatBox"></div>
-        <div style="margin-top: 20px;">
-            <input type="text" id="userInput" placeholder="संदेश लिखें...">
-            <button onclick="sendMessage()">भेजें</button>
+        <div class="chat-header">
+            <h1>🤖 AI चैटबॉट</h1>
+            <p>Puter.js + Codex AI मॉडल्स का उपयोग कर रहा है</p>
+            <div class="model-selector">
+                <button class="model-btn active" data-model="openrouter:openai/gpt-5.1-codex-mini">Codex Mini (फास्ट)</button>
+                <button class="model-btn" data-model="openrouter:openai/gpt-5.1-codex">Codex (बैलेंस्ड)</button>
+                <button class="model-btn" data-model="openrouter:openai/gpt-5.1-codex-max">Codex Max (एडवांस्ड)</button>
+            </div>
         </div>
-        <div style="margin-top: 10px;">
-            <button onclick="testAPI()">API टेस्ट करें</button>
-            <button onclick="clearChat()">चैट साफ करें</button>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="message-bubble bot-bubble">
+                    <strong>🤖 AI:</strong> नमस्ते! मैं Codex AI से पावर्ड हूं। आप मुझसे कुछ भी पूछ सकते हैं - कोडिंग, सामान्य ज्ञान, या चैट!<br>
+                    <span class="timestamp">अभी</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="input-group">
+                <input type="text" id="messageInput" placeholder="आपका संदेश यहाँ टाइप करें..." autocomplete="off">
+                <button id="sendButton">भेजें</button>
+            </div>
+            <p style="margin-top: 10px; font-size: 12px; color: #64748b;">
+                📌 Enter दबाकर भेजें | Puter.js का User-Pays मॉडल: यूज़र अपना AI यूसेज खुद पे करते हैं
+            </p>
         </div>
     </div>
 
-    <!-- Puter.js स्क्रिप्ट -->
+    <!-- Puter.js Script -->
     <script src="https://js.puter.com/v2/"></script>
-    
+
     <script>
-        // पहले Puter.js लोड हो गई है कि नहीं चेक करें
-        console.log("Puter.js लोडिंग...");
-        
-        // Wait for Puter.js to load
-        let puterLoaded = false;
-        
-        // Check if puter is available
-        function checkPuter() {
-            if (typeof puter !== 'undefined' && puter.ai) {
-                console.log("✅ Puter.js लोड हो गई!");
-                puterLoaded = true;
-                addMessage("🤖 AI: Puter.js लोड हो गई! अब आप मैसेज भेज सकते हैं।", 'ai');
-                return true;
-            } else {
-                console.log("⏳ Puter.js अभी लोड हो रही है...");
-                setTimeout(checkPuter, 1000);
-                return false;
+        // DOM Elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const modelButtons = document.querySelectorAll('.model-btn');
+
+        // Current selected model
+        let currentModel = 'openrouter:openai/gpt-5.1-codex-mini';
+
+        // Function to add message to chat
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('hi-IN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            // Check if message contains code (simple detection)
+            const isCode = message.includes('```') || message.includes('function') || 
+                          message.includes('def ') || message.includes('const ') ||
+                          message.includes('class ');
+            
+            let formattedMessage = message;
+            if (isCode) {
+                formattedMessage = message.replace(/```(\w+)?\n([\s\S]*?)```/g, 
+                    '<div class="code-block">$2</div>');
             }
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble ${isUser ? 'user-bubble' : 'bot-bubble'}">
+                    <strong>${isUser ? '👤 आप:' : '🤖 AI:'}</strong> ${formattedMessage}
+                    <div class="timestamp">${timeString}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
-        // Initialize
-        window.onload = function() {
-            checkPuter();
-        };
-        
-        // मैसेज भेजने की फंक्शन
+
+        // Function to send message to AI
         async function sendMessage() {
-            if (!puterLoaded) {
-                addMessage("❌ Error: Puter.js अभी लोड नहीं हुई। कृपया थोड़ी देर रुकें।", 'ai');
-                return;
-            }
-            
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            
+            const message = messageInput.value.trim();
             if (!message) return;
+
+            // Add user message
+            addMessage(message, true);
+            messageInput.value = '';
             
-            // यूजर मैसेज दिखाएं
-            addMessage("👤 आप: " + message, 'user');
-            input.value = '';
-            
-            // AI को लोडिंग मैसेज दिखाएं
-            const loadingMsg = addMessage("🤖 AI: सोच रहा हूं...", 'ai');
-            
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
             try {
-                // Puter.js AI को कॉल करें
-                const response = await puter.ai.chat(
-                    message,
-                    { 
-                        model: "openrouter:openai/gpt-5.1-codex-mini",
-                        max_tokens: 500
-                    }
-                );
+                // Send to Puter.js AI
+                const response = await puter.ai.chat(message, { 
+                    model: currentModel 
+                });
                 
-                // Loading message हटाएं
-                loadingMsg.remove();
+                // Hide typing indicator
+                typingIndicator.style.display = 'none';
                 
-                // AI response दिखाएं
-                addMessage("🤖 AI: " + response, 'ai');
+                // Add AI response
+                addMessage(response);
                 
             } catch (error) {
-                loadingMsg.remove();
-                addMessage("❌ Error: " + error.message + 
-                    "<br>कृपया पेज refresh करें या कुछ देर बाद try करें।", 'ai');
-                console.error("Puter.js Error:", error);
+                typingIndicator.style.display = 'none';
+                addMessage(`❌ त्रुटि: ${error.message || 'AI से कनेक्ट करने में समस्या'}`);
+                console.error('Error:', error);
             }
         }
+
+        // Event Listeners
+        sendButton.addEventListener('click', sendMessage);
         
-        // API टेस्ट फंक्शन
-        async function testAPI() {
-            if (!puterLoaded) {
-                addMessage("❌ Puter.js नहीं लोड हुई", 'ai');
-                return;
-            }
-            
-            addMessage("🔍 API टेस्ट कर रहा हूं...", 'ai');
-            
-            try {
-                const testResponse = await puter.ai.chat(
-                    "Hello, please reply with 'AI is working'",
-                    { model: "openrouter:openai/gpt-5.1-codex-mini", max_tokens: 50 }
-                );
-                
-                addMessage("✅ API टेस्ट सफल: " + testResponse, 'ai');
-            } catch (error) {
-                addMessage("❌ API टेस्ट फेल: " + error.message, 'ai');
-            }
-        }
-        
-        // चैट साफ करें
-        function clearChat() {
-            document.getElementById('chatBox').innerHTML = '';
-        }
-        
-        // मैसेज ऐड करने की helper फंक्शन
-        function addMessage(text, type) {
-            const chatBox = document.getElementById('chatBox');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${type}`;
-            msgDiv.innerHTML = text;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-            return msgDiv;
-        }
-        
-        // Enter key से भी भेज सकें
-        document.getElementById('userInput').addEventListener('keypress', function(e) {
+        messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
+
+        // Model selection
+        modelButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                modelButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                // Update current model
+                currentModel = button.dataset.model;
+                
+                // Show model change notification
+                const modelName = button.textContent.split(' (')[0];
+                addMessage(`✅ AI मॉडल बदल गया: ${modelName}`);
+            });
+        });
+
+        // Initial greeting
+        messageInput.focus();
     </script>
 </body>
 </html>
