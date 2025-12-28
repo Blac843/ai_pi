@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI चैटबॉट फिक्स्ड</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .user {
+            background: #e3f2fd;
+            text-align: right;
+        }
+        .ai {
+            background: #f5f5f5;
+            text-align: left;
+        }
+        input {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>AI चैटबॉट (फिक्स्ड वर्जन)</h2>
+        <div id="chatBox"></div>
+        <div style="margin-top: 20px;">
+            <input type="text" id="userInput" placeholder="संदेश लिखें...">
+            <button onclick="sendMessage()">भेजें</button>
+        </div>
+        <div style="margin-top: 10px;">
+            <button onclick="testAPI()">API टेस्ट करें</button>
+            <button onclick="clearChat()">चैट साफ करें</button>
+        </div>
+    </div>
+
+    <!-- Puter.js स्क्रिप्ट -->
+    <script src="https://js.puter.com/v2/"></script>
+    
+    <script>
+        // पहले Puter.js लोड हो गई है कि नहीं चेक करें
+        console.log("Puter.js लोडिंग...");
+        
+        // Wait for Puter.js to load
+        let puterLoaded = false;
+        
+        // Check if puter is available
+        function checkPuter() {
+            if (typeof puter !== 'undefined' && puter.ai) {
+                console.log("✅ Puter.js लोड हो गई!");
+                puterLoaded = true;
+                addMessage("🤖 AI: Puter.js लोड हो गई! अब आप मैसेज भेज सकते हैं।", 'ai');
+                return true;
+            } else {
+                console.log("⏳ Puter.js अभी लोड हो रही है...");
+                setTimeout(checkPuter, 1000);
+                return false;
+            }
+        }
+        
+        // Initialize
+        window.onload = function() {
+            checkPuter();
+        };
+        
+        // मैसेज भेजने की फंक्शन
+        async function sendMessage() {
+            if (!puterLoaded) {
+                addMessage("❌ Error: Puter.js अभी लोड नहीं हुई। कृपया थोड़ी देर रुकें।", 'ai');
+                return;
+            }
+            
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // यूजर मैसेज दिखाएं
+            addMessage("👤 आप: " + message, 'user');
+            input.value = '';
+            
+            // AI को लोडिंग मैसेज दिखाएं
+            const loadingMsg = addMessage("🤖 AI: सोच रहा हूं...", 'ai');
+            
+            try {
+                // Puter.js AI को कॉल करें
+                const response = await puter.ai.chat(
+                    message,
+                    { 
+                        model: "openrouter:openai/gpt-5.1-codex-mini",
+                        max_tokens: 500
+                    }
+                );
+                
+                // Loading message हटाएं
+                loadingMsg.remove();
+                
+                // AI response दिखाएं
+                addMessage("🤖 AI: " + response, 'ai');
+                
+            } catch (error) {
+                loadingMsg.remove();
+                addMessage("❌ Error: " + error.message + 
+                    "<br>कृपया पेज refresh करें या कुछ देर बाद try करें।", 'ai');
+                console.error("Puter.js Error:", error);
+            }
+        }
+        
+        // API टेस्ट फंक्शन
+        async function testAPI() {
+            if (!puterLoaded) {
+                addMessage("❌ Puter.js नहीं लोड हुई", 'ai');
+                return;
+            }
+            
+            addMessage("🔍 API टेस्ट कर रहा हूं...", 'ai');
+            
+            try {
+                const testResponse = await puter.ai.chat(
+                    "Hello, please reply with 'AI is working'",
+                    { model: "openrouter:openai/gpt-5.1-codex-mini", max_tokens: 50 }
+                );
+                
+                addMessage("✅ API टेस्ट सफल: " + testResponse, 'ai');
+            } catch (error) {
+                addMessage("❌ API टेस्ट फेल: " + error.message, 'ai');
+            }
+        }
+        
+        // चैट साफ करें
+        function clearChat() {
+            document.getElementById('chatBox').innerHTML = '';
+        }
+        
+        // मैसेज ऐड करने की helper फंक्शन
+        function addMessage(text, type) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            msgDiv.innerHTML = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return msgDiv;
+        }
+        
+        // Enter key से भी भेज सकें
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
